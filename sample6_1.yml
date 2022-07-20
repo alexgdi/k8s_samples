@@ -1,0 +1,44 @@
+---
+apiVersion: apps/v1
+# Тип объекта
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 2
+  # селектор
+  selector:
+    matchLabels:
+      app: my-app
+  # стратегия обновления
+  strategy:
+    # тип
+    type: RollingUpdate
+    rollingUpdate:
+      # дополнительная реплика. Можно писать в процентах: 10%
+      maxSurge: 1
+      # максимум сколько потушить для обновления
+      maxUnavailable: 1
+  template:
+    metadata:
+      # установить label
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - image: nginx:1.12
+          name: nginx
+          ports:
+            - containerPort: 80 # открыть порт контейнера
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: my-app         # метка по которой service отправляет трафик

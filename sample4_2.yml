@@ -1,0 +1,25 @@
+---
+apiVersion: apps/v1
+# Тип объекта
+kind: ReplicaSet
+metadata:
+  name: my-replicaset
+spec:
+  replicas: 2
+  # селектор
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    # name не указываем т.к. имена должны быть разные у подов
+    metadata:
+      # установить label
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - image: nginx:1.12
+        name: nginx
+        ports:
+          # открыть порт контейнера
+          - containerPort: 80

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep2
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: web2
+    spec:
+      containers:
+        - image: nginx:1.12
+          name: nginx
+          ports:
+          - name: http     # имя порта
+            containerPort: 80
+          volumeMounts:
+          - name: config2
+            mountPath: /etc/nginx/conf.d/
+      volumes:
+      - name: config2
+        configMap:
+          name: cm2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-svc2
+spec:
+  selector:
+    app: web2
+  ports:
+  - name: http
+    port: 80
+    targetPort: http # подставляется номер порта из APP: WEB
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm2
+data:
+  default.conf: |   # пайп говорит о том, что у нас многострочная переменная и дальше нужно воспринимать все, как одну переменную
+    server {
+        listen 80 default_server;
+        server_name  _;
+        default_type text/plain;
+        location / {
+            return 200 '$hostname\n';
+        }
+    }

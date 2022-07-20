@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+# Тип объекта
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 2
+  # селектор
+  selector:
+    matchLabels:
+      app: my-app
+  # стратегия обновления
+  strategy:
+    # тип
+    type: RollingUpdate
+    rollingUpdate:
+      # дополнительная реплика. Можно писать в процентах: 10%
+      maxSurge: 1
+      # максимум сколько потушить для обновления
+      maxUnavailable: 1
+  template:
+    metadata:
+      # установить label
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - image: nginx:1.12
+          name: nginx
+          ports:
+          - containerPort: 80  # открыть порт контейнера
+          # probes
+          readinessProbe:
+            failtureThreshold: 3
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          livenessProbe:
+            failtureThreshold: 3
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            # первый проб выполнить через 10 сек
+            initialDelaySeconds: 10
+          # Resources
+          resources:
+            requests:
+              cpu: 50m
+              memory: 100Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi
+

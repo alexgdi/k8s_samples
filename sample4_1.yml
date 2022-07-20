@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: Pod                         # Тип объекта
+metadata:
+  name: pod1
+  labels:
+    app: pod1                     # метка пода
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.12
+      ports:
+        - containerPort: 80       # открыть порт контейнера
